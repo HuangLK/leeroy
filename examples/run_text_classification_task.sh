@@ -9,7 +9,7 @@ WORK_DIR=./
 save_path=./output
 
 python -m train \
-    --task "text_clf" \
+    --task "binary_clf" \
     --num_classes 2 \
     --train_file ${WORK_DIR}/train.csv \
     --valid_file ${WORK_DIR}/val.csv \

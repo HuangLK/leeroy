@@ -1,25 +1,19 @@
+"""Train script.
 """
 
-Training.
-"""
 import sys
-sys.path.extend([
-    #'/home/huangliankai/code/lightning-transformers',
-    '/home/huangliankai/code/kg_base/',
-])
-
 import argparse
 import pytorch_lightning as pl
 from pytorch_lightning.strategies.ddp import DDPStrategy
-from transformers import AutoTokenizer
 
-from models import TextClassificationModel
+import models
 from readers import CSVDataModule
-from logger_util import logger
 
 
 def train(args):
-    model = TextClassificationModel(args)
+    pl.seed_everything(args.seed, workers=True)
+
+    model = models.create_model(args)
     dm = CSVDataModule(args)
 
     # setup tensorboard
@@ -28,10 +22,15 @@ def train(args):
 
     # setup callbacks
     callbacks = []
+    # callbacks.append(pl.callbacks.ModelCheckpoint(
+    #     filename=args.task + "-{epoch}-{step}-min-val_loss",
+    #     monitor='val_loss',
+    #     mode='min',
+    # ))
     callbacks.append(pl.callbacks.ModelCheckpoint(
-        filename=args.task + "-val_end-{epoch}-{step}",
+        filename=args.task + "-{epoch}-{step}",
         save_top_k=-1,
-        every_n_epochs=1
+        every_n_train_steps=args.valid_steps,
     ))
     callbacks.append(pl.callbacks.LearningRateMonitor(logging_interval="step"))
     #early_stopping_callback = EarlyStopping(monitor='val_loss', patience=2)
@@ -41,24 +40,24 @@ def train(args):
         accelerator="gpu",
         strategy=DDPStrategy(find_unused_parameters=False),
         logger=tb_logger,
+        deterministic=True,
         callbacks=callbacks,
         max_epochs=args.num_epochs,
         accumulate_grad_batches=args.accu_grad_steps,
         log_every_n_steps=args.log_steps,
         val_check_interval=args.valid_steps,
+        check_val_every_n_epoch=None,
+        resume_from_checkpoint=None, # TODO
     )
     trainer.fit(model, datamodule=dm)
 
-    # TODO move to test.py
-    # if hasattr(args, "test_file"):
-    #     trainer.test(datamodule=dm, ckpt_path='best', )
-
-    logger.info('done.')
+    sys.stdout.write('done.')
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, help="The name of task.")
+    parser.add_argument("--seed", default=42, type=int, help="Choose your lucky number.")
     parser.add_argument("--use_amp", default='false', type=str,
                         help="Whether use automatic mixed precision. Default: false.")
     parser.add_argument("--num_epochs", default=1, type=int,
@@ -79,7 +78,7 @@ if __name__ == "__main__":
     parser.add_argument("--save_path", default="output", type=str,
                         help="The path to save model checkpoints and logs.")
 
-    TextClassificationModel.add_cmdline_args(parser)
+    models.add_cmdline_args(parser)
     CSVDataModule.add_cmdline_args(parser)
     args = parser.parse_args()
     args.use_amp = args.use_amp in ('true', 'True', '1')

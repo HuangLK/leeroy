@@ -73,7 +73,8 @@ class CSVDataModule(DataModule):
             torch.utils.data.DataLoader: Predict dataloader.
         """
         return torch.utils.data.DataLoader(
-            self.predict_dataset, batch_size=self.batch_size, num_workers=self.num_workers)
+            self.predict_dataset, batch_size=self.batch_size, num_workers=1)
+
 
 
 if __name__ == '__main__':
