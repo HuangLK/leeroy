@@ -2,6 +2,8 @@
 """
 
 from abc import abstractmethod
+from typing import Any, Dict
+import torch
 import pytorch_lightning as pl
 
 
@@ -19,9 +21,9 @@ class Model(pl.LightningModule):
         group.add_argument("--optimizer", default="AdamW", type=str, choices=["Adam", "AdamW", "Adafactor"],
                            help="The optimizer for training. Choices: ['Adam', 'AdamW', 'Adafactor']. "
                                 "Default: 'AdamW'.")
-        group.add_argument("--scheduler", default="noam", type=str, choices=["constant", "linear", "noam"],
+        group.add_argument("--scheduler", default="linear", type=str, choices=["constant", "linear", "noam"],
                            help="The learning rate scheduler for training. Choices: ['constant', 'linear', 'noam']. "
-                                "Default: 'noam'.")
+                                "Default: 'linear'.")
         group.add_argument("-lr", "--learning_rate", default=1e-5, type=float,
                            help="The peak learning rate for optimizer. Default: 1e-5.")
         group.add_argument("--warmup_steps_ratio", default=0.1, type=float,
@@ -60,6 +62,7 @@ class Model(pl.LightningModule):
         """
         outputs = self.model(
             inputs["input_ids"],
+            token_type_ids=inputs.get("token_type_ids"),
             attention_mask=inputs.get("attention_mask"),
             labels=inputs.get("labels"),
             return_dict=True
@@ -67,7 +70,7 @@ class Model(pl.LightningModule):
         return outputs
 
     @abstractmethod
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch: Any, batch_idx: int) -> Dict[str, torch.Tensor]:
         """Training loop.
 
         Args:
@@ -83,7 +86,7 @@ class Model(pl.LightningModule):
         raise NotImplementedError
 
     @abstractmethod
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch: Any, batch_idx: int) -> Dict[str, torch.Tensor]:
         """Validation loop.
 
         Args:
@@ -99,7 +102,7 @@ class Model(pl.LightningModule):
         raise NotImplementedError
 
     @abstractmethod
-    def test_step(self, batch, batch_idx):
+    def test_step(self, batch: Any, batch_idx: int) -> Dict[str, torch.Tensor]:
         """Test step.
 
         Args:
@@ -115,7 +118,7 @@ class Model(pl.LightningModule):
         raise NotImplementedError
 
     @abstractmethod
-    def predict_step(self, batch, batch_idx):
+    def predict_step(self, batch: Any, batch_idx: int) -> Dict[str, torch.Tensor]:
         """Prediction loop.
 
         Args:
@@ -143,7 +146,7 @@ class Model(pl.LightningModule):
         raise NotImplementedError
 
     @abstractmethod
-    def create_inputs(self, batch):
+    def create_inputs(self, batch: Any) -> Dict[str, torch.Tensor]:
         """Create model inputs dictionary from dataloader batch list.
 
         Args:

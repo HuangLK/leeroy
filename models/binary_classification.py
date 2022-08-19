@@ -20,11 +20,12 @@ class BinaryClassificationModel(MultiClassClassificationModel):
         super().__init__(args)
         self.num_classes = 2
 
-    def configure_metrics(self) -> None:
+    def _configure_metrics(self):
         # 默认二分类任务为正负例分类，计算准召只关注正样本（即label=1）
-        nclass = 1
-        prec = Precision(num_classes=nclass, average="macro", multiclass=False)
-        recall = Recall(num_classes=nclass, average="macro", multiclass=False)
-        f1 = F1Score(num_classes=nclass, average="macro", multiclass=False)
-        acc = Accuracy()
-        self.metrics = {"precision": prec, "recall": recall, "f1": f1, "accuracy": acc}
+        metrics = {}
+        for stage in ('val', 'test'):
+            metrics[f'{stage}_precision'] = Precision(num_classes=1, average="macro", multiclass=False)
+            metrics[f'{stage}_recall'] = Recall(num_classes=1, average="macro", multiclass=False)
+            metrics[f'{stage}_f1'] = F1Score(num_classes=1, average="macro", multiclass=False)
+            metrics[f'{stage}_accuracy'] = Accuracy()
+        return metrics

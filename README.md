@@ -5,7 +5,11 @@
 ## 功能点
 * 支持分类任务
 
+## fixed bugs
+* 修复val结束之后metrics未reset
+
 ## TODO
+* 支持多标签多分类任务
 * 增加checkpoint恢复训练（集群抢占资源必备）
 * 增加其他任务（持续工作）
 
