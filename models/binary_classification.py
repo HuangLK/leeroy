@@ -4,8 +4,6 @@
 from torchmetrics import Accuracy, Precision, Recall, F1Score
 from .multiclass_classification import MultiClassClassificationModel
 
-from models.multiclass_classification import MultiClassClassificationModel
-
 
 class BinaryClassificationModel(MultiClassClassificationModel):
     """Model for the binary classification task.

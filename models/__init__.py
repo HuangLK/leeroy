@@ -1,6 +1,7 @@
 from models.model_base import Model
 from models.binary_classification import BinaryClassificationModel
 from models.multiclass_classification import MultiClassClassificationModel
+from models.multilabel_classification import MultiLabelClassificationModel
 
 __all__ = [
     'create_model',
@@ -10,6 +11,7 @@ __all__ = [
 TASK2MODEL = {
     'binary_clf': BinaryClassificationModel,
     'mulclass_clf': MultiClassClassificationModel,
+    'multilabel_clf': MultiLabelClassificationModel,
 }
 
 def _get_model_cls(args):

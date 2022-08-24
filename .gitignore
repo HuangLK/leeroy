@@ -126,3 +126,5 @@ data
 
 # HF
 .lock
+
+output/
