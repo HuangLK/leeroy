@@ -1,0 +1,4 @@
+protobuf==3.19.4
+pytorch-lightning==1.7.1
+torch==1.12.1
+transformers==4.20.1
