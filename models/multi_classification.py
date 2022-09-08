@@ -11,7 +11,7 @@ from models.model_base import Model
 from models.common import get_optimizer_scheduler
 
 
-class MultiClassClassificationModel(Model):
+class MultiClassificationModel(Model):
     """Model for the multi-class classification task.
     """
     @classmethod
@@ -35,6 +35,11 @@ class MultiClassClassificationModel(Model):
     def setup_model(self):
         self._tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=self.use_fast_tokenizer)
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name_or_path, num_labels=self.num_classes)
+        if self.special_tokens:
+            with open(self.special_tokens, "r") as fin:
+                special_tokens = [w.strip() for w in fin]
+            self._tokenizer.add_special_tokens({"additional_special_tokens": special_tokens})
+        self.model.resize_token_embeddings(len(self._tokenizer))
 
     def training_step(self, batch: Any, batch_idx: int) -> Dict[str, torch.Tensor]:
         inputs = self.create_inputs(batch)

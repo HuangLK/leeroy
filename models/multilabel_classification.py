@@ -6,10 +6,10 @@ import torch
 from torchmetrics import Metric, Accuracy, Precision, Recall, F1Score
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-from .multiclass_classification import MultiClassClassificationModel
+from .multiclass_classification import MultiClassificationModel
 
 
-class MultiLabelClassificationModel(MultiClassClassificationModel):
+class MultiLabelClassificationModel(MultiClassificationModel):
     """Model for the multilabel classification task.
     """
     @classmethod
@@ -29,10 +29,14 @@ class MultiLabelClassificationModel(MultiClassClassificationModel):
         self._tokenizer = AutoTokenizer.from_pretrained(self.model_name_or_path, use_fast=self.use_fast_tokenizer)
         self.model = AutoModelForSequenceClassification.from_pretrained(
             self.model_name_or_path, num_labels=self.num_classes, problem_type="multi_label_classification")
+        if self.special_tokens:
+            with open(self.special_tokens, "r") as fin:
+                special_tokens = [w.strip() for w in fin]
+            self._tokenizer.add_special_tokens({"additional_special_tokens": special_tokens})
+        self.model.resize_token_embeddings(len(self._tokenizer))
 
     def _configure_metrics(self) -> Dict[str, Metric]:
         metrics = {}
-        # 类别个位为2时，则会分别计算两个类别的准召
         for stage in ('val', 'test'):
             metrics[f'{stage}_precision'] = Precision(num_classes=self.num_classes, average="macro", threshold=self.threshold)
             metrics[f'{stage}_recall'] = Recall(num_classes=self.num_classes, average="macro", threshold=self.threshold)
@@ -57,9 +61,14 @@ class MultiLabelClassificationModel(MultiClassClassificationModel):
         inputs = self.create_inputs(batch, stage='predict')
         outputs = self.forward(inputs)
         logits = outputs.logits
-        preds = torch.where(self.sigmoid(logits) >= self.threshold, 1, 0)
+        probs = self.sigmoid(logits)
+        preds = torch.where(probs >= self.threshold, 1, 0)
+        probs = [pb.tolist() for pb in probs]
         preds = [torch.nonzero(pd, as_tuple=True)[0].tolist() for pd in preds]
-        return {'preds': preds}
+        return {
+            'probs': probs,
+            'preds': preds,
+        }
 
     def create_inputs(self, batch: Any, stage: str = 'fit') -> Dict[str, torch.Tensor]:
         """ Write your custom inputs creating function.

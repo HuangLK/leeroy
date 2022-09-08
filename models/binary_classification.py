@@ -2,7 +2,7 @@
 """
 
 from torchmetrics import Accuracy, Precision, Recall, F1Score
-from .multiclass_classification import MultiClassClassificationModel
+from .multi_classification import MultiClassClassificationModel
 
 
 class BinaryClassificationModel(MultiClassClassificationModel):

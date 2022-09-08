@@ -18,6 +18,8 @@ class Model(pl.LightningModule):
                            help="The maximum length of the sequence. Default: 512.")
         group.add_argument("--use_fast_tokenizer", default='false', type=str,
                            help="Whether or not to try to load the fast version of the tokenizer. Default: false.")
+        group.add_argument("--special_tokens", type=str,
+                           help="The config file of special tokens.")
         group.add_argument("--optimizer", default="AdamW", type=str, choices=["Adam", "AdamW", "Adafactor"],
                            help="The optimizer for training. Choices: ['Adam', 'AdamW', 'Adafactor']. "
                                 "Default: 'AdamW'.")
@@ -36,6 +38,7 @@ class Model(pl.LightningModule):
         super().__init__()
         self.max_seq_len = args.max_seq_len
         self.use_fast_tokenizer = args.use_fast_tokenizer in ('true', '1')
+        self.special_tokens = args.special_tokens
         self.optimizer = args.optimizer
         self.scheduler = args.scheduler
         self.lr = args.learning_rate
