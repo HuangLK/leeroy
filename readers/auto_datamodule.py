@@ -1,15 +1,16 @@
-"""CSV DataModule.
+"""Auto DataModule.
+Create DataModule by file suffix.
 """
 import os
 import torch
-import pytorch_lightning as pl
 
 from readers.csv_dataset import CsvDataset
+from readers.json_dataset import JsonDataset
 from readers.datamodule_base import DataModule
 
 
-class CSVDataModule(DataModule):
-    """CSV DataModule.
+class AutoDataModule(DataModule):
+    """Auto DataModule.
     """
 
     def __init__(self, args):
@@ -32,12 +33,12 @@ class CSVDataModule(DataModule):
             stage (str): A string flag of data stage: fit/test/predict.
         """
         if stage == "fit":
-            self.train_dataset = CsvDataset(self.train_file)
-            self.valid_dataset = CsvDataset(self.valid_file)
+            self.train_dataset = AutoDataModule._auto_create_dataset(self.train_file)
+            self.valid_dataset = AutoDataModule._auto_create_dataset(self.valid_file)
         elif stage == "test":
-            self.test_dataset = CsvDataset(self.test_file)
+            self.test_dataset = AutoDataModule._auto_create_dataset(self.test_file)
         elif stage in ("predict", "infer"):
-            self.predict_dataset = CsvDataset(self.predict_file)
+            self.predict_dataset = AutoDataModule._auto_create_dataset(self.predict_file)
 
     def train_dataloader(self):
         """Set up training dataloader.
@@ -75,19 +76,26 @@ class CSVDataModule(DataModule):
         return torch.utils.data.DataLoader(
             self.predict_dataset, batch_size=self.batch_size, num_workers=1)
 
+    @staticmethod
+    def _auto_create_dataset(file):
+        if file.endswith('.csv'):
+            return CsvDataset(file)
+        elif file.endswith('.json'):
+            return JsonDataset(file)
+        else:
+            raise ValueError('Unsupported file type. Only supports [csv, json]')
 
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    CSVDataModule.add_cmdline_args(parser)
+    AutoDataModule.add_cmdline_args(parser)
     args = parser.parse_args()
-    args.train_file = '/home/huangliankai/code/kg_base/factual_consistency/train.csv'
-    args.valid_file = '/home/huangliankai/code/kg_base/factual_consistency/val.csv'
+    args.predict_file = '/home/huangliankai/code/Leeroy/examples/span_extraction/test.json'
     args.batch_size = 1
     print(args)
-    dm = CSVDataModule(args)
-    dm.setup('fit')
-    for batch in dm.train_dataloader():
+    dm = AutoDataModule(args)
+    dm.setup('predict')
+    for batch in dm.predict_dataloader():
         print(batch)
         break

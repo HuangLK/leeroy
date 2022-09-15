@@ -6,7 +6,7 @@ import torch
 from torchmetrics import Metric, Accuracy, Precision, Recall, F1Score
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-from .multiclass_classification import MultiClassificationModel
+from .multi_classification import MultiClassificationModel
 
 
 class MultiLabelClassificationModel(MultiClassificationModel):

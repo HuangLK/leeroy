@@ -1,1 +1,1 @@
-from readers.csv_datamodule import CSVDataModule
+from readers.auto_datamodule import AutoDataModule

@@ -1,13 +1,13 @@
-""" CSV dataset.
+""" Json dataset.
 """
+
+import json
 
 import torch
 
-from utils.csv_utils import load_csv
 
-
-class CsvDataset(torch.utils.data.Dataset):
-    """CSV dataset.
+class JsonDataset(torch.utils.data.Dataset):
+    """Json dataset.
     """
 
     def __init__(
@@ -16,7 +16,7 @@ class CsvDataset(torch.utils.data.Dataset):
     ):
         super().__init__()
         self.data_file = data_file
-        self._data = list(load_csv(self.data_file))
+        self._data = [json.loads(ln) for ln in open(self.data_file, encoding='utf-8')]
 
     def __len__(self):
         return len(self._data)

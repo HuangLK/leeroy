@@ -1,7 +1,8 @@
-from models.model_base import Model
-from models.binary_classification import BinaryClassificationModel
-from models.multi_classification import MultiClassificationModel
-from models.multilabel_classification import MultiLabelClassificationModel
+from .model_base import Model
+from .binary_classification import BinaryClassificationModel
+from .multi_classification import MultiClassificationModel
+from .multilabel_classification import MultiLabelClassificationModel
+from .span_extraction import SpanExtractionModel
 
 __all__ = [
     'create_model',
@@ -12,6 +13,7 @@ TASK2MODEL = {
     'binary_clf': BinaryClassificationModel,
     'mulclass_clf': MultiClassificationModel,
     'multilabel_clf': MultiLabelClassificationModel,
+    'span': SpanExtractionModel,
 }
 
 def _get_model_cls(args):
