@@ -5,12 +5,14 @@
 ## 功能点
 * 支持多分类任务
 * 支持多标签分类任务
+* 支持UIE式的抽取任务，能直接加载UIE参数
 
 ## fixed bugs
-* 修复val结束之后metrics未reset
+*
 
 ## TODO
 * 增加checkpoint恢复训练（集群抢占资源必备）
+* 增加loss配置机制，支持Focal loss等，方便炼丹
 * 增加其他任务（持续工作）
 
 ## 协作共建

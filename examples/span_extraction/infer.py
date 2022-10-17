@@ -22,6 +22,18 @@ def infer(args) -> str:
     for pred in preds:
         print(pred)
 
+    # if not os.path.exists(args.save_path):
+    #     os.makedirs(args.save_path)
+
+    # outfile = args.ckpt_path.replace(".ckpt", "-pred.csv")
+    # with open(outfile, 'w') as fout:
+    #     for pred in preds:
+    #         fout.write(json.dumps(pred, ensure_ascii=False))
+    #         fout.write('\n')
+
+    # sys.stdout.write(f'save result: {outfile}\n')
+    # sys.stdout.write('done.')
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

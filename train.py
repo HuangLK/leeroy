@@ -7,14 +7,14 @@ import pytorch_lightning as pl
 from pytorch_lightning.strategies.ddp import DDPStrategy
 
 import models
-from readers import CSVDataModule
+from readers import AutoDataModule
 
 
 def train(args):
     pl.seed_everything(args.seed, workers=True)
 
     model = models.create_model(args)
-    dm = CSVDataModule(args)
+    dm = AutoDataModule(args)
 
     # setup tensorboard
     tb_logger = pl.loggers.TensorBoardLogger(save_dir=args.save_path, name=args.task)
@@ -22,11 +22,14 @@ def train(args):
 
     # setup callbacks
     callbacks = []
-    # callbacks.append(pl.callbacks.ModelCheckpoint(
-    #     filename=args.task + "-{epoch}-{step}-min-val_loss",
-    #     monitor='val_loss',
-    #     mode='min',
-    # ))
+    callbacks.append(pl.callbacks.ModelCheckpoint(
+        filename=args.task + "-{epoch}-{step}-min-val_loss",
+        monitor='val_loss',
+        mode='min',
+        save_top_k=3,
+        save_last=True,
+    ))
+
     callbacks.append(pl.callbacks.ModelCheckpoint(
         filename=args.task + "-{epoch}-{step}",
         save_top_k=-1,
@@ -57,6 +60,7 @@ def train(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, help="The name of task.")
+    parser.add_argument("--tips", type=str, help="Some tips of task.")
     parser.add_argument("--seed", default=42, type=int, help="Choose your lucky number.")
     parser.add_argument("--use_amp", default='false', type=str,
                         help="Whether use automatic mixed precision. Default: false.")
@@ -82,4 +86,5 @@ if __name__ == "__main__":
     CSVDataModule.add_cmdline_args(parser)
     args = parser.parse_args()
     args.use_amp = args.use_amp in ('true', 'True', '1')
+
     train(args)
