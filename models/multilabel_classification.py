@@ -98,7 +98,7 @@ class MultiLabelClassificationModel(MultiClassificationModel):
             truncation=True,
             return_tensors='pt',
         )
-        if stage == 'predict':
+        if 'label' not in batch[0]:
             inputs["labels"] = None
         else:
             inputs["labels"] = _create_labels(batch["label"])

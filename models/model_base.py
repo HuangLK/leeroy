@@ -36,6 +36,7 @@ class Model(pl.LightningModule):
 
     def __init__(self, args):
         super().__init__()
+        self.save_hyperparameters()
         self.max_seq_len = args.max_seq_len
         self.use_fast_tokenizer = args.use_fast_tokenizer in ('true', '1')
         self.special_tokens = args.special_tokens
