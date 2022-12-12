@@ -3,6 +3,7 @@ from .binary_classification import BinaryClassificationModel
 from .multi_classification import MultiClassificationModel
 from .multilabel_classification import MultiLabelClassificationModel
 from .span_extraction import SpanExtractionModel
+from .t5 import T5
 
 __all__ = [
     'create_model',
@@ -14,6 +15,7 @@ TASK2MODEL = {
     'mulclass_clf': MultiClassificationModel,
     'multilabel_clf': MultiLabelClassificationModel,
     'span': SpanExtractionModel,
+    't5': T5,
 }
 
 def _get_model_cls(args):

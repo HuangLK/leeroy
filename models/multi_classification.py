@@ -127,7 +127,7 @@ class MultiClassificationModel(Model):
             truncation=True,
             return_tensors='pt',
         )
-        if stage == 'predict':
+        if 'label' not in batch[0]:
             inputs["labels"] = None
         else:
             inputs["labels"] = torch.tensor([int(y) for y in batch["label"]], dtype=torch.long)

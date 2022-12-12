@@ -86,5 +86,5 @@ if __name__ == "__main__":
     CSVDataModule.add_cmdline_args(parser)
     args = parser.parse_args()
     args.use_amp = args.use_amp in ('true', 'True', '1')
-
+    args.use_fast_tokenizer = args.use_fast_tokenizer in ('true', 'True', '1')
     train(args)
