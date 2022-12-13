@@ -15,6 +15,7 @@ def train(args):
 
     model = models.create_model(args)
     dm = AutoDataModule(args)
+    models.Model.interact(model, dm)
 
     # setup tensorboard
     tb_logger = pl.loggers.TensorBoardLogger(save_dir=args.save_path, name=args.task)

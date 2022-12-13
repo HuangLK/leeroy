@@ -2,7 +2,10 @@
 Create DataModule by file suffix.
 """
 import os
+from functools import partial
 import torch
+from typing import Callable, Optional
+from transformers import AutoTokenizer
 
 from readers.csv_dataset import CsvDataset
 from readers.json_dataset import JsonDataset
@@ -14,7 +17,17 @@ class AutoDataModule(DataModule):
     """
 
     def __init__(self, args):
+        self.collate_fn = None
+        self.tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, use_fast=args.use_fast_tokenizer)
+        if args.special_tokens:
+            with open(args.special_tokens, "r") as fin:
+                special_tokens = [w.strip() for w in fin]
+            self.tokenizer.add_special_tokens({"additional_special_tokens": special_tokens})
+
         super().__init__(args)
+
+    def register_fn(self, cfn: Callable):
+        self.collate_fn = partial(cfn, tokenizer=self.tokenizer)
 
     def prepare_data(self):
         if self.train_file and not os.path.isfile(self.train_file):
@@ -26,7 +39,7 @@ class AutoDataModule(DataModule):
         if self.predict_file and not os.path.isfile(self.predict_file):
             raise ValueError(f"`{self.predict_file}` does not exist.")
 
-    def setup(self, stage='fit'):
+    def setup(self, stage: Optional[str] = 'fit'):
         """Set up dataset, which will be called on every process in DDP.
 
         Args:
@@ -37,7 +50,7 @@ class AutoDataModule(DataModule):
             self.valid_dataset = AutoDataModule._auto_create_dataset(self.valid_file)
         elif stage == "test":
             self.test_dataset = AutoDataModule._auto_create_dataset(self.test_file)
-        elif stage in ("predict", "infer"):
+        elif stage == "predict":
             self.predict_dataset = AutoDataModule._auto_create_dataset(self.predict_file)
 
     def train_dataloader(self):
@@ -47,7 +60,7 @@ class AutoDataModule(DataModule):
             torch.utils.data.DataLoader: Training dataloader.
         """
         return torch.utils.data.DataLoader(
-            self.train_dataset, batch_size=self.batch_size, num_workers=self.num_workers)
+            self.train_dataset, batch_size=self.batch_size, num_workers=self.num_workers, collate_fn=self.collate_fn)
 
     def val_dataloader(self):
         """Set up validation dataloader.
@@ -56,7 +69,7 @@ class AutoDataModule(DataModule):
             torch.utils.data.DataLoader: Validation dataloader.
         """
         return torch.utils.data.DataLoader(
-            self.valid_dataset, batch_size=self.batch_size, num_workers=self.num_workers)
+            self.valid_dataset, batch_size=self.batch_size, num_workers=self.num_workers, collate_fn=self.collate_fn)
 
     def test_dataloader(self):
         """Set up test dataloader.
@@ -65,7 +78,7 @@ class AutoDataModule(DataModule):
             torch.utils.data.DataLoader: Test dataloader.
         """
         return torch.utils.data.DataLoader(
-            self.test_dataset, batch_size=self.batch_size, num_workers=self.num_workers)
+            self.test_dataset, batch_size=self.batch_size, num_workers=self.num_workers, collate_fn=self.collate_fn)
 
     def predict_dataloader(self):
         """Set up predict dataloader.
@@ -74,7 +87,7 @@ class AutoDataModule(DataModule):
             torch.utils.data.DataLoader: Predict dataloader.
         """
         return torch.utils.data.DataLoader(
-            self.predict_dataset, batch_size=self.batch_size, num_workers=1)
+            self.predict_dataset, batch_size=self.batch_size, num_workers=1, collate_fn=self.collate_fn)
 
     @staticmethod
     def _auto_create_dataset(file):
