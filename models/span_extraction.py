@@ -82,6 +82,8 @@ class BertForSpan(BertPreTrainedModel):
 class SpanExtractionModel(Model):
     """Model for span extraction.
     """
+    task = 'span'
+
     @classmethod
     def add_cmdline_args(cls, parser):
         """Add command line arguments."""

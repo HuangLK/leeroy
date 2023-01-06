@@ -14,6 +14,8 @@ from models.common import get_optimizer_scheduler
 class MultiClassificationModel(Model):
     """Model for the multi-class classification task.
     """
+    task = 'mulclass_clf'
+
     @classmethod
     def add_cmdline_args(cls, parser):
         """Add command line arguments."""

@@ -8,6 +8,8 @@ from .multi_classification import MultiClassificationModel
 class BinaryClassificationModel(MultiClassificationModel):
     """Model for the binary classification task.
     """
+    task = 'binary_clf'
+
     @classmethod
     def add_cmdline_args(cls, parser):
         """Add command line arguments."""
