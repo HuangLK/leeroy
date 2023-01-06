@@ -1,28 +1,28 @@
+import os
+import pkgutil
+import inspect
+import importlib
+
 from .model_base import Model
-from .binary_classification import BinaryClassificationModel
-from .multi_classification import MultiClassificationModel
-from .multilabel_classification import MultiLabelClassificationModel
-from .span_extraction import SpanExtractionModel
-from .t5 import T5
 
 __all__ = [
     'create_model',
     'add_cmdline_args'
 ]
 
-TASK2MODEL = {
-    'binary_clf': BinaryClassificationModel,
-    'mulclass_clf': MultiClassificationModel,
-    'multilabel_clf': MultiLabelClassificationModel,
-    'span': SpanExtractionModel,
-    't5': T5,
-}
+_TASK2MODEL = {}
+for mod_name in list(module for _, module, _ in pkgutil.iter_modules([os.path.dirname(__file__)])):
+    module = importlib.import_module(f'.{mod_name}', package='models')
+    for _, cls in inspect.getmembers(module, lambda c: inspect.isclass(c) and issubclass(c, Model) and c != Model):
+        _TASK2MODEL[cls.task] = cls
+
 
 def _get_model_cls(args):
     task_name = args.task.split('-')[0]
-    if task_name not in TASK2MODEL:
+    if task_name not in _TASK2MODEL:
         raise ValueError(f'task={args.task} is unvalid.')
-    return TASK2MODEL[task_name]
+    return _TASK2MODEL[task_name]
+
 
 def create_model(args) -> Model:
     model_cls = _get_model_cls(args)

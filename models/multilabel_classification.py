@@ -12,6 +12,8 @@ from .multi_classification import MultiClassificationModel
 class MultiLabelClassificationModel(MultiClassificationModel):
     """Model for the multilabel classification task.
     """
+    task = 'multilabel_clf'
+
     @classmethod
     def add_cmdline_args(cls, parser):
         """Add command line arguments."""
