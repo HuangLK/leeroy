@@ -21,7 +21,7 @@ class T5(Model):
         """Add command line arguments."""
         group = super().add_cmdline_args(parser)
         group.add_argument("--model_name_or_path", default="Langboat/mengzi-t5-base-mt", type=str,
-                           help="BERT-like model in huggingface.co or a path to model weights. "
+                           help="T5 model in huggingface.co or a path to model weights. "
                                 "Default: 'Langboat/mengzi-t5-base-mt'.")
         group.add_argument("--source_max_seq_len", type=int, default=512)
         group.add_argument("--target_max_seq_len", type=int, default=128)

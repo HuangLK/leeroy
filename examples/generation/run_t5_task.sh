@@ -25,11 +25,12 @@ accu_grad_steps=1
 if [[ $gpu_num == 0 ]]; then
     batch_size=56
     valid_steps=5000
-    learning_rate=1e-4
+    learning_rate=1e-5
 # 4卡
+elif [[ $gpu_num == 3 ]]; then
     batch_size=56
     valid_steps=1000
-    learning_rate=1e-5
+    learning_rate=1e-4
 fi
 
 
