@@ -164,9 +164,9 @@ class Model(pl.LightningModule):
         """
         raise NotImplementedError
 
-    @staticmethod
-    def interact(model, dm):
+    def interact(self, dm):
         """ Coupling Model with DataModule.
         """
-        dm.register_fn(model.create_inputs)
-        model.model.resize_token_embeddings(len(dm.tokenizer))
+        dm.register_fn(self.create_inputs)
+        if self.special_tokens:
+            self.model.resize_token_embeddings(len(dm.tokenizer))
