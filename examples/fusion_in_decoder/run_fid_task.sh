@@ -11,25 +11,25 @@ WORK_DIR=./
 CODE_DIR=./
 save_path=./output
 
-task=t5-test
+task=fid-test
 
 model_name_or_path="Langboat/mengzi-t5-base-mt"
 gpu_num=$(echo ${gpus} | grep -o "," | wc -l)
 
-num_epochs=1
+num_epochs=5
 source_max_seq_len=512
-target_max_seq_len=128
+target_max_seq_len=256
+n_context=10
 accu_grad_steps=1
+batch_size=6
 
 # 1卡
 if [[ $gpu_num == 0 ]]; then
-    batch_size=56
-    valid_steps=5000
-    learning_rate=1e-5
-# 4卡
-elif [[ $gpu_num == 3 ]]; then
-    batch_size=56
-    valid_steps=1000
+    valid_steps=10000
+    learning_rate=5e-5
+# 2卡
+elif [[ $gpu_num == 1 ]]; then
+    valid_steps=10000
     learning_rate=1e-4
 fi
 
@@ -37,11 +37,12 @@ fi
 if [[ $mode == 'train' ]]; then
     python ${CODE_DIR}/train.py \
         --task ${task} \
-        --train_file ${WORK_DIR}/train.csv \
-        --valid_file ${WORK_DIR}/valid.csv \
+        --train_file ${WORK_DIR}train.json \
+        --valid_file ${WORK_DIR}valid.json \
+        --n_context ${n_context} \
         --use_amp false \
         --batch_size ${batch_size} \
-        --num_workers 48 \
+        --num_workers 24 \
         --optimizer "AdamW" \
         --scheduler "linear" \
         --learning_rate ${learning_rate} \
@@ -56,8 +57,5 @@ if [[ $mode == 'train' ]]; then
         --use_fast_tokenizer true \
         --source_max_seq_len ${source_max_seq_len} \
         --target_max_seq_len ${target_max_seq_len}
-    exit $?
-elif [[ $mode == 'infer' ]]; then
-    echo 'todo.'
     exit $?
 fi
