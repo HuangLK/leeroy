@@ -14,6 +14,8 @@ class Model(pl.LightningModule):
     def add_cmdline_args(cls, parser):
         """Add command line arguments."""
         group = parser.add_argument_group("Model")
+        group.add_argument("--train_strategy", default="ddp", type=str, choices=["ddp", "deepspeed"],
+                           help="Distributed GPU strategy. Default: 'ddp'.")
         group.add_argument("--max_seq_len", default=512, type=int,
                            help="The maximum length of the sequence. Default: 512.")
         group.add_argument("--use_fast_tokenizer", default='false', type=str,
