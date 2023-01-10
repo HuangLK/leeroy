@@ -4,7 +4,6 @@
 import sys
 import argparse
 import pytorch_lightning as pl
-from pytorch_lightning.strategies.ddp import DDPStrategy
 
 import models
 from readers import AutoDataModule
@@ -39,10 +38,36 @@ def train(args):
     callbacks.append(pl.callbacks.LearningRateMonitor(logging_interval="step"))
     #early_stopping_callback = EarlyStopping(monitor='val_loss', patience=2)
 
+    if args.train_strategy == 'ddp':
+        from pytorch_lightning.strategies import DDPStrategy
+        strategy = DDPStrategy(find_unused_parameters=False)
+    elif args.train_strategy == 'deepspeed':
+        from pytorch_lightning.strategies import DeepSpeedStrategy
+        # TODO: gather parameters of deepspeed from `args`, like `--deepspeed-reduce_bucket_size=5e8`
+        # https://pytorch-lightning.readthedocs.io/en/1.7.1/api/pytorch_lightning.strategies.DeepSpeedStrategy.html
+        dsp_params = {
+            'stage': 2,
+            'offload_optimizer': True,
+            'pin_memory': True,
+            'allgather_bucket_size': 5e8,
+            'reduce_bucket_size': 5e8,
+            'logging_batch_size_per_gpu': args.batch_size,
+        }
+        # dsp_params = {
+        #     'stage': 3,
+        #     'offload_optimizer': True,
+        #     'offload_parameters': True,
+        #     'logging_batch_size_per_gpu': args.batch_size,
+        # }
+        strategy = DeepSpeedStrategy(**dsp_params)
+
+    else:
+        raise ValueError(f'Unsupported train strategy: {args.train_strategy}')
+
     trainer = pl.Trainer(
         devices=-1,
         accelerator="gpu",
-        strategy=DDPStrategy(find_unused_parameters=False),
+        strategy=strategy,
         logger=tb_logger,
         deterministic=True,
         callbacks=callbacks,
