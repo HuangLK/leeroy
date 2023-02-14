@@ -3,7 +3,7 @@
 
 import torch
 
-from utils.csv_utils import load_csv
+from ..utils.csv_utils import load_csv
 
 
 class CsvDataset(torch.utils.data.Dataset):

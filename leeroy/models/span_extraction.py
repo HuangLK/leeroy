@@ -8,7 +8,7 @@ from transformers import AutoModel, AutoTokenizer, BertModel, BertPreTrainedMode
 from transformers.modeling_outputs import QuestionAnsweringModelOutput
 
 from .model_base import Model
-from utils import span_utils as sputils
+from ..utils import span_utils as sputils
 
 
 class BertForSpan(BertPreTrainedModel):
