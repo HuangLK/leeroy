@@ -5,8 +5,8 @@ import sys
 import argparse
 import pytorch_lightning as pl
 
-import models
-from readers import AutoDataModule
+from leeroy import models
+from leeroy.readers import AutoDataModule
 
 
 def train(args):
@@ -78,7 +78,7 @@ def train(args):
         check_val_every_n_epoch=None,
         resume_from_checkpoint=None, # TODO
     )
-    trainer.fit(model, datamodule=dm)
+    trainer.fit(model, datamodule=dm, ckpt_path=args.resume_ckpt_path)
 
     sys.stdout.write('done.')
 
@@ -107,6 +107,7 @@ if __name__ == "__main__":
                                  "`valid_steps` / `accu_grad_steps` steps.")
     parser.add_argument("--save_path", default="output", type=str,
                         help="The path to save model checkpoints and logs.")
+    parser.add_argument("--resume_ckpt_path", type=str, help="Path/URL of the checkpoint from which training is resumed.")
 
     models.add_cmdline_args(parser)
     AutoDataModule.add_cmdline_args(parser)

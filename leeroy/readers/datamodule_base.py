@@ -25,7 +25,8 @@ class DataModule(pl.LightningDataModule):
                            help="The size of batches. Default: 32. ")
         group.add_argument("--num_workers", default=8, type=int,
                            help="The number of workers used in data loader. Default: 8.")
-
+        group.add_argument("--tokenizer_name_or_path", type=str,
+                           help="Use `model_name_or_path` by default")
         return group
 
     def __init__(self, args):
@@ -36,6 +37,8 @@ class DataModule(pl.LightningDataModule):
         self.predict_file = args.predict_file
         self.batch_size = args.batch_size
         self.num_workers = args.num_workers
+        if not args.tokenizer_name_or_path:
+            args.tokenizer_name_or_path = args.model_name_or_path
 
     def prepare_data(self):
         """Prepare dataset, which will only be called on GPU:0 in distributed.

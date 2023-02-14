@@ -7,8 +7,8 @@ import torch
 from torchmetrics import Metric, Accuracy, Precision, Recall, F1Score
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-from models.model_base import Model
-from models.common import get_optimizer_scheduler
+from .model_base import Model
+from .common import get_optimizer_scheduler
 
 
 class T5(Model):

@@ -7,9 +7,9 @@ import torch
 from typing import Callable, Optional
 from transformers import AutoTokenizer
 
-from readers.csv_dataset import CsvDataset
-from readers.json_dataset import JsonDataset
-from readers.datamodule_base import DataModule
+from .csv_dataset import CsvDataset
+from .json_dataset import JsonDataset
+from .datamodule_base import DataModule
 
 
 class AutoDataModule(DataModule):
@@ -17,14 +17,14 @@ class AutoDataModule(DataModule):
     """
 
     def __init__(self, args):
+        super().__init__(args)
+
         self.collate_fn = None
-        self.tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, use_fast=args.use_fast_tokenizer)
+        self.tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_name_or_path, use_fast=args.use_fast_tokenizer)
         if args.special_tokens:
             with open(args.special_tokens, "r") as fin:
                 special_tokens = [w.strip() for w in fin]
             self.tokenizer.add_special_tokens({"additional_special_tokens": special_tokens})
-
-        super().__init__(args)
 
     def register_fn(self, cfn: Callable):
         self.collate_fn = partial(cfn, tokenizer=self.tokenizer)

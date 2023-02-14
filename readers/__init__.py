@@ -1,1 +1,0 @@
-from readers.auto_datamodule import AutoDataModule

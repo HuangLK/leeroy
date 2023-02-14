@@ -12,7 +12,7 @@ __all__ = [
 
 _TASK2MODEL = {}
 for mod_name in list(module for _, module, _ in pkgutil.iter_modules([os.path.dirname(__file__)])):
-    module = importlib.import_module(f'.{mod_name}', package='models')
+    module = importlib.import_module(f'.{mod_name}', package=__package__)
     for _, cls in inspect.getmembers(module, lambda c: inspect.isclass(c) and issubclass(c, Model) and c != Model):
         _TASK2MODEL[cls.task] = cls
 
